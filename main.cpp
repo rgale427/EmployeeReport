@@ -17,7 +17,7 @@ struct Employee
    double m_grossPay ;
 
 };
-void readcsvFile(std::vector <Employee> &employees);
+void readcsvFile(std::vector <Employee> &e);
 
 // void calcgrossPay(Employee &employees);
 
@@ -25,21 +25,24 @@ void parseString(std::string &line, std::string &field);
 /*void positions(Employee &my_employee);*/
 
 
-void printTable (std::vector <Employee> &employees);
-void randomizeEmployees(std::vector <Employee> &employees);
+void printTable (std::vector <Employee> &e);
+void randomizeEmployees(std::vector <Employee> &e);
 int main()
 {
-    std::vector<Employee> employees;
-readcsvFile(employees);
+    std::vector<Employee> e;
+readcsvFile(e);
 
 
 
-    printTable(employees);
+    printTable(e);
 
-randomizeEmployees(employees);
-printTable(employees);
-
-
+randomizeEmployees(e);
+printTable(e);
+std::sort(e.begin(), e.end(), [](const Employee& a, const Employee& b)
+{
+    return a.m_grossPay > b.m_grossPay;
+});
+printTable (e);
 
     /*std::cout << "NAME" <<std::setw(18) << "EMPNUMBER" << std::setw(15) << "HOURLY RATE"<< std::setw(15) << "HOURS WORKED" <<std::setw(15) << "GROSS PAY" << std:: endl;
     std::cout<< "---------------------------------------------------------------------" << std::endl;*/
@@ -124,49 +127,77 @@ line = line.substr(location+1, line.length());
     return 0;
 
 }
+void parseString(const std::string &line, std::string& field, int index){
+    size_t start = 0;
+    size_t end = line.find(',');
+    for (int i = 0; i < index; i++)
+    {
+        start = end + 1;
+        end = line.find (',', start); }
+        if (end == std::string::npos)
+        {
+            field =line.substr(start);
+           }  else field =line.substr(start,end-start);
+
+
+    //int location;
+
+    /*location = line.find(',');
+    field = line.substr(0,location);
+    line = line.substr(location+1, line.length());*/
+}
 
 
 
 
-
-void readcsvFile(std::vector <Employee> &employees){
+void readcsvFile(std::vector <Employee> &e){
     std::ifstream csvFile;
     csvFile.open("../EmployeeData.csv");
     if(!csvFile.is_open())
     { //#4 - exception handling
         std::cout<<"Error opening file"<<std::endl;
+        return;
     }
 
-    double grossPay;
+
     std::string line;
     std::getline(csvFile,line); //read header ignore
     while (std::getline(csvFile,line))
     {//#5 process the CVS file
-        Employee tempEmployee;
-                parseString(line,name);
-            std::string name;
+         //parseString(line, line);
+         Employee tempEmployee;
+std::string name;
+
+        std::string empNum;
+        std::string rate;
+        std::string hours;
+
+
+                parseString(line,name, 0);
+ parseString(line,empNum, 1);
+          parseString(line,rate, 2);
+          parseString(line,hours, 3);
+
             tempEmployee.m_name = name;
 
-        parseString(line,empNum);
-        std::string empNum;
-             parseString(line,rate);
         tempEmployee.m_empNum = std::stoi(empNum);
-        std::string rate;
+
            tempEmployee.m_rate = std::stof(rate);
-    parseString(line,hours);
-            std::string hours;
+
         tempEmployee.m_hours = std::stof(hours);
 
+        tempEmployee.m_grossPay = tempEmployee.m_rate * tempEmployee.m_hours;
+e.push_back(tempEmployee);
 
-        double grossPay = stod(rate) * stod(hours);
-tempEmployee.m_grossPay = grossPay;
+       // double grossPay = stod(rate) * stod(hours);
 
-        std::cout<<std::setw(15) << std::left <<name ;
+//e.push_back(tempEmployee);
+        /*std::cout<<std::setw(15) << std::left <<name ;
         std::cout<<std::setw(15)  << empNum ;
         std::cout<<std::setw(15) << rate ;
         std::cout<< std::setw(15) <<hours ;
         std::cout<< std::setw(15) <<grossPay;
-        std::cout<<std::endl;
+        std::cout<<std::endl;*/
 
 
     }
@@ -176,20 +207,24 @@ tempEmployee.m_grossPay = grossPay;
 
 
 }
-void parseString(std::string &line, std::string &field){
-    int location;
-    location = line.find(',');
-    field = line.substr(0,location);
-    line = line.substr(location+1, line.length());
-}
+
 
 void printTable (std::vector <Employee> &employees)
 {
     std::cout << "NAME" <<std::setw(18) << "EMPNUMBER" << std::setw(15) << "HOURLY RATE"<< std::setw(15) << "HOURS WORKED" <<std::setw(15) << "GROSS PAY" << std:: endl;
     std::cout<< "---------------------------------------------------------------------" << std::endl;
 
+for (const auto& e : employees)
+{
+    std::cout<<std:: left << std::setw(10) <<e.m_name;
+    std::cout<< std::setw(10) << std::right << e.m_empNum;
+    std::cout<< std::setw(10) << std::right << "$"<< e.m_rate;
+    std::cout<< std::setw(10) << e.m_hours;
+    std::cout<<std::setw(10)<< "$"<< e.m_grossPay;
+    std::cout<< std::endl;
 
-
+}
+    std::cout<< "---------------------------------------------------------------------" << std::endl;
     /*
     std::cout<<std::setw(15) << std::left <<name ;
     std::cout<<std::setw(15)  << empNum ;
